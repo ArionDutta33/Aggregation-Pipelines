@@ -1,0 +1,190 @@
+average of all the users 
+[
+  {
+    $group: {
+      _id: null,//this is the criteria on which the group is made
+      averageAge: { $avg: "$age" },//average age these fields can be named by us
+    
+    },
+  },
+]
+//list the top 5 most common fruits among all the users
+[
+  {
+    $group: {
+      _id: "$favoriteFruit",
+      count:{$sum:1}//this goes like it adds one whenever it encounters things it iterates through the entire list of documents
+    },
+  },
+  {
+    $sort: {
+      count: -1
+    }
+  }
+  ,
+  {
+    $limit: 5
+  }
+]
+//total number of males and female of all the users
+[
+	{
+	  $group: {
+	    _id: "$gender",
+	     count:{
+         $sum:1
+       }
+	  }
+	}
+]
+
+//country with most number of users
+[
+	{
+	  $group: {
+	    _id: "$company.location.country",
+ 			totalUsers:{$sum:1}
+	  }
+	}  ,
+  {
+    $sort: {
+      totalUsers: -1,
+    }
+  },
+  {
+    $limit: 1
+  }
+]
+//people having unique eye colors
+[
+	{
+	  $group: {
+	    _id: "$eyeColor",
+	  }
+	},
+  {
+    $count: 'numColors'
+  }
+]
+//average number of tags per user 
+[
+  {
+    $addFields: {
+      numTags:{
+      	$size:{$ifNull:["$tags",[]	]}  
+      }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      averageNumberofTags:{$avg:"$numTags"}
+    }
+  }
+]
+ [
+   {
+     $match: {
+       tags:"enim"
+     }
+   },
+   {
+     $count: 'usersWithEnimTags'
+   }
+ ]
+
+ //get the name and the age of the users who have the tag of velit and where isActive is set to false
+  [
+   {
+     $match: {
+       tags:"velit",
+       isActive:false
+     }
+   },
+   {
+     $project: {
+       name	:1,
+       age:1
+     }
+   }
+ ]
+// The value 1 means "include this field," while 0 would mean "exclude this field."
+
+
+
+//users with phone number starting with +91
+ [
+   {
+     $match: {
+      	"company.phone":/^\+1\(940\)/
+     }
+   },
+   {
+     $count: 'usersWithPhoneNumber+91'
+   }
+ ]
+//
+
+who regsitered most recently 
+ // [
+   {
+     $sort: {
+       registered: -1
+     }
+   },
+   {
+     $limit: 4
+   },
+   {
+$project: {
+  name:1,
+  regsitered:1,
+  favoriteFruit:1
+}}
+ ]
+
+
+ //categorized wrt favourite fruits [
+   {
+     $group: {
+       _id: "$favoriteFruit",
+       users:{$push:"$name"}
+     }
+   }
+ ]
+
+ //second tag as ad
+  [
+   {
+     $match: {
+       "tags.1":"ad"//access through first index in array
+     }
+   },
+   {
+     $count: 'secondTagAsAd'
+   }
+ ]
+
+ //having both the tags "enim" and "id"
+ [
+	{
+	  $match: {
+	    tags:{$all:["enim","id"]}
+	  }
+	}  
+]
+
+//user count of employees in the usa
+[
+  {
+    $match: {
+      "company.location.country":"USA"
+    }
+  },
+  {
+    $group: {
+      _id: null,
+			userCount:{$sum:1}
+    }
+  }
+]
