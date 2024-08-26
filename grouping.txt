@@ -1,0 +1,28 @@
+average of all the users 
+[
+  {
+    $group: {
+      _id: null,//this is the criteria on which the group is made
+      averageAge: { $avg: "$age" },//average age these fields can be named by us
+    
+    },
+  },
+]
+//list the top 5 most common fruits among all the users
+[
+  {
+    $group: {
+      _id: "$favoriteFruit",
+      count:{$sum:1}//this goes like it adds one whenever it encounters things it iterates through the entire list of documents
+    },
+  },
+  {
+    $sort: {
+      count: -1
+    }
+  }
+  ,
+  {
+    $limit: 5
+  }
+]
